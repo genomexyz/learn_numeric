@@ -1,3 +1,3 @@
 # learn_numeric
 
-all of my little program to re:learn numeric 
+all of my simple coding to re:learn numeric 
