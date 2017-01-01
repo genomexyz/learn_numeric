@@ -3,7 +3,6 @@
 import sys
 import numpy
 
-N = 100000
 maks = 1.0
 mins = 0.0
 
