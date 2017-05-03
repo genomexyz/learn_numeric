@@ -2,7 +2,7 @@
 
 from mpl_toolkits.basemap import Basemap
 import matplotlib
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 from matplotlib import colors
 from scipy import misc
 from matplotlib import animation
@@ -32,7 +32,7 @@ heatmatrix[0] = heatinginit
 #solving ax = b
 for i in xrange(tottime-1):
 	#create matrix 'b'
-	bmat = heatmatrix[i]
+	bmat = heatmatrix[i] / timestep
 	#create matrix 'a'
 	amat = np.zeros((len(heatinginit), len(heatinginit)))
 	for j in xrange(len(heatinginit)):
@@ -69,5 +69,5 @@ def animate(i):
 
 anim = animation.FuncAnimation(fig, animate, init_func=init,
            frames=tottime, interval=500, blit=True)
-anim.save('/tmp/animation.gif', writer='imagemagick', fps=5)
-#plt.show()
+#anim.save('/tmp/animation.gif', writer='imagemagick', fps=5)
+plt.show()
