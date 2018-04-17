@@ -1,0 +1,147 @@
+#!/usr/bin/python
+
+import numpy as np
+import random
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+
+#setting
+iterasi = 30
+vmax = 3
+lrate = 0.5
+partikel = 4
+totvar = 2
+ubound = 2
+dbound = -2
+
+def dropwave(x1, x2):
+	return -(1 + np.cos(12.0 * (x1**2.0 + x2**2.0)**0.5))/(0.5 * (x1**2.0 + x2**2.0) + 2)
+
+##############
+#initializing#
+##############
+
+#record of partikel
+recpartikel = np.zeros((iterasi+1, partikel, totvar))
+
+#partikel location
+pos = np.zeros((partikel, totvar))
+bpos = np.zeros((partikel, totvar))
+vpos = np.zeros((partikel, totvar))
+for i in xrange(partikel):
+	pos[i,0] = random.uniform(dbound, ubound)
+	bpos[i,0] = pos[i,0]
+	pos[i,1] = random.uniform(dbound, ubound)
+	bpos[i,1] = pos[i,1]
+
+#testing
+#pos[-1,:] = 0
+#bpos[-1,:] = 0
+
+print 'awal', pos
+#partikel fitness
+fitcont = np.zeros((partikel))
+bestfit = np.zeros((partikel))
+#arbitary value for the sake of algorithm
+bestfit[:] = 100
+
+pbest = np.zeros((partikel, totvar))
+
+recpartikel[0] = pos
+
+####################
+#PSO real algorithm#
+####################
+
+#main iteration
+for i in xrange(iterasi):
+	#update all partikel
+	print 'iterasi ke', i+1
+	for j in xrange(partikel):
+		fitcont[j] = dropwave(pos[j,0], pos[j,1])
+		if fitcont[j] < bestfit[j]:
+			bestfit[j] = fitcont[j]
+			bpos[j] = pos[j]
+	for j in xrange(partikel):
+		#find gbest and update velocity
+		if j != partikel-1:
+			#local gbest scheme
+			#lsr = np.argmin([bestfit[j-1], bestfit[j], bestfit[j+1]])
+			#lsr -= 1
+			#vpos[j] = vpos[j] \
+			#+ lrate*random.uniform(0, 1)*(bpos[j] - pos[j]) \
+			#+ lrate*random.uniform(0, 1)*(bpos[j+lsr] - pos[j])
+			lsr = np.argmin(bestfit)
+			vpos[j] = vpos[j] \
+			+ lrate*random.uniform(0, 1)*(bpos[j] - pos[j]) \
+			+ lrate*random.uniform(0, 1)*(bpos[lsr] - pos[j])
+			#velocity control with vmax
+			for k in xrange(len(vpos[0])):
+				if vpos[j,k] > vmax:
+					vpos[j,k] = vmax
+			#keep solution in boundary
+			for k in xrange(len(vpos[0])):
+				if (pos[j,k] + vpos[j,k]) > ubound or (pos[j,k] + vpos[j,k]) < dbound:
+					print 'punishment', pos[j,k] + vpos[j,k], ubound, dbound
+					vpos[j,k] = 0
+			pos[j] = pos[j] + vpos[j]
+			print lsr
+		else:
+			#local gbset scheme
+			#lsr = np.argmin([bestfit[j-1], bestfit[j], bestfit[0]])
+			#if lsr != 2:
+			#	lsr -= 1
+			#	vpos[j] = vpos[j] \
+			#	+ lrate*random.uniform(0, 1)*(bpos[j] - pos[j]) \
+			#	+ lrate*random.uniform(0, 1)*(bpos[j+lsr] - pos[j])
+			#	pos[j] = pos[j] + vpos[j]
+			#else:
+			#	vpos[j] = vpos[j] \
+			#	+ lrate*random.uniform(0, 1)*(bpos[j] - pos[j]) \
+			#	+ lrate*random.uniform(0, 1)*(bpos[0] - pos[j])
+			lsr = np.argmin(bestfit)
+			vpos[j] = vpos[j] \
+			+ lrate*random.uniform(0, 1)*(bpos[j] - pos[j]) \
+			+ lrate*random.uniform(0, 1)*(bpos[lsr] - pos[j])
+			#velocity control with vmax
+			for k in xrange(len(vpos[0])):
+				if vpos[j,k] > vmax:
+					vpos[j,k] = vmax
+			#keep solution in boundary
+			for k in xrange(len(vpos[0])):
+				if (pos[j,k] + vpos[j,k]) > ubound or (pos[j,k] + vpos[j,k]) < dbound:
+					print 'punishment', pos[j,k] + vpos[j,k], ubound, dbound
+					vpos[j,k] = 0
+			pos[j] = pos[j] + vpos[j]
+			print lsr
+	recpartikel[i] = pos
+
+####################
+#find best partikel#
+####################
+#f(x_1,x_2) = \frac{1 + \cos{(12\sqrt{x_{1}^{2}+x_{2}^{2}})}}{\frac{1}{2}(x_{1}^{2}+x_{2}^{2})+2}
+#find best solution
+finalfit = np.zeros((partikel))
+for i in xrange(partikel):
+	finalfit[i] = dropwave(pos[i,0], pos[i,1])	
+print 'jawaban terbaik adalah'
+bsol = pos[np.argmin(finalfit)]
+print dropwave(bsol[0], bsol[1]), 'dengan solution', bsol[0], 'dan', bsol[1]
+
+#################################
+#plot of development of particle#
+#################################
+
+
+for i in xrange(iterasi):
+	colors = cm.rainbow(np.linspace(0, 1, partikel))
+	fig = plt.figure()
+	axes = plt.gca()
+	axes.set_xlim([dbound,ubound])
+	axes.set_ylim([dbound,ubound])
+	plt.scatter(recpartikel[i,:,0], recpartikel[i,:,1], color=colors)
+	fig.savefig('/home/genomexyz/pso/fig-'+str(i)+'.png')
+	print 'saving image process...', (float(i)/iterasi) * 100, '%'
+
+print dropwave(0,0)
+print dropwave(-1,2)
