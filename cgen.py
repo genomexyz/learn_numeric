@@ -41,7 +41,7 @@ print breeding(10,7)
 population = []
 
 for i in xrange(pool):
-	population.append([random.uniform(-10., 10.), random.uniform(-10., 10.)])
+	population.append([random.uniform(dbound., ubound), random.uniform(dbound., ubound)])
 
 population = np.asarray(population)
 
