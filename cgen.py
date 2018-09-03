@@ -78,11 +78,15 @@ for iterator in xrange(iterasi):
 	populatioNew = populatioNew[:survive]
 	populationfit = populationfit[:survive]
 
+###########
+#crossover#
+###########
+
 	poolmating = np.zeros((pool-survive, 2))
 	rolet = np.zeros((survive+1))
 	rolet[0] = 0
 #define domain of probability
-#totfit = np.sum(populationfit)
+
 
 	totprob = 0
 	for i in xrange(survive):
@@ -103,9 +107,6 @@ for iterator in xrange(iterasi):
 		poolmating[i] = populatioNew[choosenidx]
 	#print poolmating
 
-###########
-#crossover#
-###########
 
 	newgen = np.zeros((pool-survive, 2))
 	for i in xrange((pool-survive)/2):
@@ -136,4 +137,3 @@ for iterator in xrange(iterasi):
 
 	population[:survive] = populatioNew[:]
 	population[survive:] = newgen[:]
-
